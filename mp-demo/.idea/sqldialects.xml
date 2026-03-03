@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://E:/1学习资料/SpringCloud微服务—资料/day01-MybatisPlus/资料/mp.sql" dialect="MySQL" />
+  </component>
+</project>
