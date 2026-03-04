@@ -21,6 +21,6 @@ public interface UserMapper extends BaseMapper<User> {
 
     void updateBalanceByIds(@Param("ew") QueryWrapper<User> wrapper, @Param("amount") int amount);
 
-    @Update("UPDATE user SET balance = balance - #{money} WHERE id = #{id}")
+    @Update("UPDATE tb_user SET balance = balance - #{money} WHERE id = #{id}")
     void deductMoneyById(@Param("id") Long id, @Param("money") Integer money);
 }
