@@ -15,11 +15,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Transactional
     public void deductBalance(Long id, Integer money) {
         // 1.查询用户
-//        User user = getById(id);
-        User user = lambdaQuery()
+        User user = getById(id);
+        /*User user = lambdaQuery()
                 .eq(User::getId, id)
                 .last("FOR UPDATE")  // ✅ 查询加锁！
-                .one();
+                .one();*/
         // 2.判断用户状态
         if (user == null || user.getStatus() == 2) {
             throw new RuntimeException("用户状态异常");
