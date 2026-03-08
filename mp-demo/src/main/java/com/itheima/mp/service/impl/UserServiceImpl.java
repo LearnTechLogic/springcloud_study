@@ -13,7 +13,8 @@ import com.itheima.mp.service.IUserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
@@ -75,5 +76,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             userVO.setAddresses(BeanUtil.copyToList(addresses, AddressVO.class));
         }
         return userVO;
+    }
+
+    @Override
+    public List<UserVO> queryUserAndAddressByIds(List<Long> ids) {
+        // 查询用户
+        List<User> users = listByIds(ids);
+        if (CollUtil.isEmpty(users)) {
+            return Collections.emptyList();
+        }
+
+        // 查询地址
+        List<Long> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        List<Address> addresses = Db.lambdaQuery(Address.class)
+                .in(Address::getUserId, userIds)
+                .list();
+        Map<Long, List<AddressVO>> addressMap = new HashMap<>();
+        if (CollUtil.isNotEmpty(addresses)) {
+            List<AddressVO> addressVOList = BeanUtil.copyToList(addresses, AddressVO.class);
+            addressMap = addressVOList.stream().collect(Collectors.groupingBy(AddressVO::getUserId));
+        }
+
+        // 封装VO
+        List<UserVO> list = new ArrayList<>(users.size());
+        for (User user : users) {
+            UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+            userVO.setAddresses(addressMap.get(user.getId()));
+            list.add(userVO);
+        }
+        return list;
     }
 }
