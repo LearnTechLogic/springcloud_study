@@ -2,10 +2,15 @@ package com.itheima.mp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
+import com.itheima.mp.domain.dto.PageDTO;
 import com.itheima.mp.domain.po.Address;
 import com.itheima.mp.domain.po.User;
+import com.itheima.mp.domain.query.UserQuery;
 import com.itheima.mp.domain.vo.AddressVO;
 import com.itheima.mp.domain.vo.UserVO;
 import com.itheima.mp.enums.UserStatus;
@@ -44,7 +49,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 .set(remainBalance == 0, User::getStatus, UserStatus.FROZEN)
                 .eq(User::getId, id)
                 .eq(User::getBalance, user.getBalance()) // 乐观锁
-
                 .update();
     }
 
@@ -106,5 +110,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             list.add(userVO);
         }
         return list;
+    }
+
+    @Override
+    public PageDTO<UserVO> queryUsersPage(UserQuery query) {
+        String name = query.getName();
+        Integer status = query.getStatus();
+
+        /*Page<User> page = Page.of(query.getPageNo(), query.getPageSize());
+//        page.addOrder(new OrderItem(query.getSortBy(), query.getIsAsc()));
+        if(StrUtil.isNotBlank(query.getSortBy())) {
+            page.addOrder(query.getIsAsc() ? OrderItem.asc(query.getSortBy()) : OrderItem.desc(query.getSortBy()));
+        }else {
+//            page.addOrder(query.getIsAsc() ? OrderItem.asc("update_time") : OrderItem.desc("update_time"));
+            page.addOrder(OrderItem.desc("update_time"));
+        }*/
+        Page<User> page = query.toMpPageDefaultSortByUpdateTimeDesc();
+
+        Page<User> p = lambdaQuery()
+                .like(name != null, User::getUsername, name)
+                .eq(status != null, User::getStatus, status)
+                .page(page);
+
+        /*PageDTO<UserVO> dto = new PageDTO<>();
+        dto.setTotal(p.getTotal());
+        dto.setPages(p.getPages());
+        List<User> records = p.getRecords();
+        if(CollUtil.isEmpty(records)) {
+            dto.setList(Collections.emptyList());
+            return dto;
+        }
+        List<UserVO> list = BeanUtil.copyToList(records, UserVO.class);
+        dto.setList(list);
+        return dto;*/
+//        return PageDTO.of(p, UserVO.class);
+//        return PageDTO.of(p, user -> BeanUtil.copyProperties(user, UserVO.class));
+        return PageDTO.of(p,user -> {
+            UserVO userVO = BeanUtil.copyProperties(user, UserVO.class);
+            userVO.setUsername(user.getUsername().substring(0, userVO.getUsername().length() - 2) + "**");
+            return userVO;
+        });
     }
 }
