@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zxh.springbootmybatis.mapper.StudentMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.zxh.springbootmybatis.entity.Student">
+        <id column="id" property="id"/>
+        <result column="student_no" property="studentNo"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="gender" property="gender"/>
+        <result column="class_name" property="className"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询列 -->
+    <sql id="Base_Column_List">
+        id, student_no, name, age, gender, class_name, create_time, update_time
+    </sql>
+
+    <!-- 查询所有学生 -->
+    <select id="listAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM student
+        ORDER BY id ASC
+    </select>
+
+    <!-- 根据 ID 查询学生 -->
+    <select id="getById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM student
+        WHERE id = #{id}
+    </select>
+
+    <!-- 添加学生 -->
+    <insert id="add" parameterType="com.zxh.springbootmybatis.entity.Student" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO student (
+            student_no,
+            name,
+            age,
+            gender,
+            class_name,
+            create_time,
+            update_time
+        ) VALUES (
+            #{studentNo},
+            #{name},
+            #{age},
+            #{gender},
+            #{className},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <!-- 更新学生信息 -->
+    <update id="update" parameterType="com.zxh.springbootmybatis.entity.Student">
+        UPDATE student
+        <set>
+            <if test="studentNo != null">student_no = #{studentNo},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="className != null">class_name = #{className},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除学生 -->
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM student WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除学生 -->
+    <delete id="batchDelete">
+        DELETE FROM student WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据条件查询学生 -->
+    <select id="listByCondition" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM student
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="className != null and className != ''">
+                AND class_name = #{className}
+            </if>
+        </where>
+        ORDER BY id ASC
+    </select>
+
+</mapper>
