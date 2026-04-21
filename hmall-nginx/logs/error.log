@@ -1,0 +1,4 @@
+2026/04/07 13:36:28 [emerg] 48244#26744: bind() to 0.0.0.0:80 failed (10013: An attempt was made to access a socket in a way forbidden by its access permissions)
+2026/04/07 13:37:50 [emerg] 61176#59108: bind() to 0.0.0.0:80 failed (10013: An attempt was made to access a socket in a way forbidden by its access permissions)
+2026/04/07 15:36:32 [alert] 58900#46376: worker process 44384 exited with code C0000142
+2026/04/07 15:36:32 [alert] 58900#46376: could not respawn worker
